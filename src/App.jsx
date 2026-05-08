@@ -3,30 +3,23 @@ import { motion, AnimatePresence } from 'motion/react';
 import { Play, X, Search, Globe, LayoutGrid, Zap, History, ShieldCheck, Maximize } from 'lucide-react';
 import gamesData from './games.json';
 
-interface Game {
-  id: string;
-  title: string;
-  thumbnail: string;
-  iframeSrc: string;
-}
-
 export default function App() {
-  const [view, setView] = useState<'home' | 'arcade' | 'music' | 'movies'>('home');
-  const [selectedGame, setSelectedGame] = useState<Game | null>(null);
+  const [view, setView] = useState('home');
+  const [selectedGame, setSelectedGame] = useState(null);
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearchQuery, setActiveSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
 
   const filteredGames = useMemo(() => {
-    return (gamesData as Game[]).filter(game => {
+    return gamesData.filter(game => {
       const matchesSearch = game.title.toLowerCase().includes(activeSearchQuery.toLowerCase());
       const matchesCategory = activeCategory === 'All' || game.id.toLowerCase().includes(activeCategory.toLowerCase());
       return matchesSearch && matchesCategory;
     });
   }, [activeSearchQuery, activeCategory]);
 
-  const musicContainerRef = useRef<HTMLDivElement>(null);
-  const moviesContainerRef = useRef<HTMLDivElement>(null);
+  const musicContainerRef = useRef(null);
+  const moviesContainerRef = useRef(null);
 
   const toggleMusicFullscreen = () => {
     if (musicContainerRef.current) {
@@ -54,9 +47,9 @@ export default function App() {
 
   const categories = ['All', 'Action', 'Retro', 'Strategy', 'Trending'];
 
-  const handleSearch = (e: React.KeyboardEvent<HTMLInputElement>) => {
+  const handleSearch = (e) => {
     if (e.key === 'Enter') {
-      const input = (e.target as HTMLInputElement).value.trim();
+      const input = e.target.value.trim();
       if (!input) {
         setActiveSearchQuery('');
         return;
@@ -164,7 +157,7 @@ export default function App() {
       </aside>
 
       {/* Main Content */}
-      <main className="flex-1 flex flex-col min-w-0 bg-transparent relative z-10">
+      <main className="flex-1 flex flex-col min-w-0 bg-black relative z-10">
         {/* Mobile Header */}
         <header className="h-16 flex items-center px-6 lg:px-10 border-b border-border sticky top-0 bg-black/20 backdrop-blur-md z-40">
           <div 
@@ -466,7 +459,7 @@ export default function App() {
             initial={{ opacity: 0 }}
             animate={{ opacity: 1 }}
             exit={{ opacity: 0 }}
-            className="fixed inset-0 z-50 flex flex-col bg-bg"
+            className="fixed inset-0 z-50 flex flex-col bg-black"
             id="game-overlay"
           >
             <header className="h-14 border-b border-border flex items-center justify-between px-6">
@@ -501,4 +494,3 @@ export default function App() {
     </div>
   );
 }
-
