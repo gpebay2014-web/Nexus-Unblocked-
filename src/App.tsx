@@ -94,7 +94,7 @@ export default function App() {
   };
 
   return (
-    <div className="flex min-h-screen bg-transparent selection:bg-accent/30 font-sans text-white relative">
+    <div className="flex min-h-screen bg-black selection:bg-accent/30 font-sans text-white relative">
       {/* Dynamic Starfield Overlay */}
       <div className="fixed inset-0 pointer-events-none opacity-40 z-0">
         <div className="absolute inset-0" style={{ backgroundImage: 'radial-gradient(circle, white 1px, transparent 1px)', backgroundSize: '100px 100px' }} />
