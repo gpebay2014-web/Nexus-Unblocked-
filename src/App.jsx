@@ -1,7 +1,11 @@
-import { useState, useMemo, useRef } from 'react';
+import { useState, useMemo, useRef, useEffect } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
-import { Play, X, Search, Globe, LayoutGrid, Zap, History, ShieldCheck, Maximize } from 'lucide-react';
+import { Play, X, Search, Globe, LayoutGrid, Zap, History, ShieldCheck, Maximize, Sparkles, MessageSquare } from 'lucide-react';
+import { GoogleGenAI } from "@google/genai";
 import gamesData from './games.json';
+
+// Initialize Gemini AI
+const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
 
 export default function App() {
   const [view, setView] = useState('home');
@@ -9,6 +13,29 @@ export default function App() {
   const [searchQuery, setSearchQuery] = useState('');
   const [activeSearchQuery, setActiveSearchQuery] = useState('');
   const [activeCategory, setActiveCategory] = useState('All');
+  
+  // AI State
+  const [aiRecommendation, setAiRecommendation] = useState('');
+  const [isAiLoading, setIsAiLoading] = useState(false);
+  const [showAiConsole, setShowAiConsole] = useState(false);
+
+  const getAiRecommendation = async () => {
+    setIsAiLoading(true);
+    setShowAiConsole(true);
+    try {
+      const prompt = `You are the Nexus.json Celestial Guide. Based on these games: ${gamesData.map(g => g.title).join(', ')}, recommend one game to the user in a short, mysterious, and tech-forward cosmic style. Keep it under 40 words.`;
+      const response = await ai.models.generateContent({
+        model: "gemini-3-flash-preview",
+        contents: prompt,
+      });
+      setAiRecommendation(response.text);
+    } catch (err) {
+      console.error('Gemini API Error:', err);
+      setAiRecommendation('VOID_CALIBRATION_FAILED::CHECK_API_KEY_OR_QUOTA');
+    } finally {
+      setIsAiLoading(false);
+    }
+  };
 
   const filteredGames = useMemo(() => {
     return gamesData.filter(game => {
@@ -207,6 +234,33 @@ export default function App() {
               exit={{ opacity: 0, scale: 1.02 }}
               className="flex-1 flex flex-col items-center justify-center relative overflow-hidden px-6"
             >
+              {/* AI Floating Console */}
+              <AnimatePresence>
+                {showAiConsole && (
+                  <motion.div
+                    initial={{ opacity: 0, y: 20 }}
+                    animate={{ opacity: 1, y: 0 }}
+                    exit={{ opacity: 0, y: 20 }}
+                    className="absolute top-10 right-10 w-72 p-4 bg-black/60 border border-accent/20 backdrop-blur-xl z-50 overflow-hidden"
+                  >
+                    <div className="flex items-center justify-between mb-4 border-b border-accent/10 pb-2">
+                       <span className="text-[8px] uppercase tracking-[0.3em] font-bold text-accent">CELESTIAL_AI_LOGS</span>
+                       <button onClick={() => setShowAiConsole(false)} className="text-white/20 hover:text-white"><X className="w-3 h-3" /></button>
+                    </div>
+                    {isAiLoading ? (
+                      <div className="space-y-2 animate-pulse">
+                        <div className="h-2 w-full bg-accent/10" />
+                        <div className="h-2 w-3/4 bg-accent/10" />
+                      </div>
+                    ) : (
+                      <div className="text-[10px] text-accent font-mono leading-relaxed uppercase">
+                        {aiRecommendation || "READY_TO_GUIDE_YOU_THROUGH_THE_VEX_ARCHIVE."}
+                      </div>
+                    )}
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
               <div className="w-full max-w-2xl text-center z-10">
                 <div className="mb-16">
                   <span className="text-[10px] uppercase tracking-[0.6em] font-bold text-accent drop-shadow-[0_0_10px_#00f0ff] mb-4 block">CENTRAL_NEXUS</span>
@@ -216,6 +270,13 @@ export default function App() {
                 </div>
 
                 <div className="relative group mb-12">
+                  <button 
+                    onClick={getAiRecommendation}
+                    className="absolute right-6 top-1/2 -translate-y-1/2 p-2 hover:bg-accent/20 transition-all rounded"
+                    title="CELESTIAL_GUIDE"
+                  >
+                    <Sparkles className="w-4 h-4 text-accent animate-pulse" />
+                  </button>
                   <Search className="absolute left-6 top-1/2 -translate-y-1/2 w-4 h-4 text-white/20 group-focus-within:text-accent transition-all" />
                   <input 
                     type="text" 
