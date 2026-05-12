@@ -5,23 +5,36 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Nexus Games | Unblocked Gaming Portal</title>
   </head>
-    <body style="background-color: #000000; color: #ffffff; margin: 0; min-height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif;">
-    <div id="root" style="width: 100%; min-height: 100vh; background-color: #000000;">
-      <div id="fallback-loader" style="position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 100;">
-        <div style="font-size: 24px; font-weight: bold; font-style: italic; letter-spacing: -0.05em;">Nexus.<span style="color: #00F0FF;">json</span></div>
-        <div style="font-size: 10px; opacity: 0.5; letter-spacing: 0.5em;">INITIALIZING_CORE...</div>
-      </div>
+  <body style="background-color: #000000; color: #ffffff; margin: 0;">
+    <div id="fallback-loader" style="position: fixed; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 20px; z-index: 100; background-color: #000000; transition: opacity 0.5s ease-in-out;">
+      <div style="font-size: 24px; font-weight: bold; font-style: italic; letter-spacing: -0.05em; font-family: serif;">Nexus.<span style="color: #00F0FF;">json</span></div>
+      <div style="font-size: 10px; opacity: 0.5; letter-spacing: 0.5em; font-family: sans-serif;">INITIALIZING_CORE...</div>
     </div>
-    <script type="module" src="src/main.jsx"></script>
+    <div id="root"></div>
+    <script type="module" src="/src/main.jsx"></script>
     <script>
-      // Remove fallback loader once React mounts
+      // Remove fallback loader once React mounts content into #root
       const checkMount = setInterval(() => {
-        if (document.querySelector('main')) {
+        const root = document.getElementById('root');
+        if (root && root.innerHTML.trim().length > 0) {
           const loader = document.getElementById('fallback-loader');
-          if (loader) loader.style.display = 'none';
+          if (loader) {
+            loader.style.opacity = '0';
+            setTimeout(() => loader.remove(), 500);
+          }
           clearInterval(checkMount);
         }
-      }, 100);
+      }, 200);
+
+      // Safety timeout
+      setTimeout(() => {
+        const loader = document.getElementById('fallback-loader');
+        if (loader) {
+          loader.style.opacity = '0';
+          setTimeout(() => loader.remove(), 500);
+        }
+        clearInterval(checkMount);
+      }, 5000);
     </script>
   </body>
 </html>

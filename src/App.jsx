@@ -4,8 +4,18 @@ import { Play, X, Search, Globe, LayoutGrid, Zap, History, ShieldCheck, Maximize
 import { GoogleGenAI } from "@google/genai";
 import gamesData from './games.json';
 
-// Initialize Gemini AI
-const ai = new GoogleGenAI({ apiKey: process.env.GEMINI_API_KEY });
+// Lazy AI Initialization
+let aiClient = null;
+const getAiClient = () => {
+  if (!aiClient) {
+    const apiKey = process.env.GEMINI_API_KEY;
+    if (!apiKey) {
+      throw new Error('GEMINI_API_KEY is not defined in the environment.');
+    }
+    aiClient = new GoogleGenAI(apiKey);
+  }
+  return aiClient;
+};
 
 export default function App() {
   const [view, setView] = useState('home');
@@ -23,12 +33,12 @@ export default function App() {
     setIsAiLoading(true);
     setShowAiConsole(true);
     try {
+      const client = getAiClient();
       const prompt = `You are the Nexus.json Celestial Guide. Based on these games: ${gamesData.map(g => g.title).join(', ')}, recommend one game to the user in a short, mysterious, and tech-forward cosmic style. Keep it under 40 words.`;
-      const response = await ai.models.generateContent({
-        model: "gemini-3-flash-preview",
-        contents: prompt,
-      });
-      setAiRecommendation(response.text);
+      const model = client.getGenerativeModel({ model: "gemini-2.0-flash" }); // Use stable model
+      const result = await model.generateContent(prompt);
+      const response = await result.response;
+      setAiRecommendation(response.text());
     } catch (err) {
       console.error('Gemini API Error:', err);
       setAiRecommendation('VOID_CALIBRATION_FAILED::CHECK_API_KEY_OR_QUOTA');
