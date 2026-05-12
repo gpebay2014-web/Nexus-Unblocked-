@@ -8,9 +8,13 @@ import gamesData from './games.json';
 let aiClient = null;
 const getAiClient = () => {
   if (!aiClient) {
-    const apiKey = process.env.GEMINI_API_KEY;
+    // Try to get API key from various possible sources
+    const apiKey = (import.meta.env && import.meta.env.VITE_GEMINI_API_KEY) || 
+                   (typeof process !== 'undefined' && process.env && process.env.GEMINI_API_KEY) || 
+                   "";
+
     if (!apiKey) {
-      throw new Error('GEMINI_API_KEY is not defined in the environment.');
+      throw new Error('GEMINI_API_KEY is not defined. Please configure it in your environment.');
     }
     aiClient = new GoogleGenAI(apiKey);
   }

@@ -14,7 +14,7 @@
       </div>
     </div>
     <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx"></script>
     <script>
       // Enhanced mount detection
       const loader = document.getElementById('fallback-loader');
@@ -32,8 +32,8 @@
 
       const checkMount = setInterval(() => {
         const root = document.getElementById('root');
-        // Check if root has any significant content beyond the loader
-        if (root && root.children.length > 0) {
+        // Check if root has any children (React has mounted)
+        if (root && root.hasChildNodes()) {
           if (loaderBar) loaderBar.style.width = '100%';
           setTimeout(() => {
             if (loader) {
@@ -46,7 +46,7 @@
         }
       }, 100);
 
-      // Safety timeout (5 seconds)
+      // Safety timeout (8 seconds)
       setTimeout(() => {
         if (loader) {
           loader.style.opacity = '0';
@@ -54,7 +54,7 @@
         }
         clearInterval(checkMount);
         clearInterval(interval);
-      }, 5000);
+      }, 8000);
     </script>
   </body>
 </html>
